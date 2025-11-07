@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff6aa7" />
+  <title>Birthday Countdown</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --pink: #ff6aa7;
+      --yellow: #ffd166;
+      --blue: #70d6ff;
+      --purple: #c77dff;
+      --green: #83e377;
+      --bg1: #ff9a9e;
+      --bg2: #fad0c4;
+      --bg3: #a18cd1;
+      --bg4: #fbc2eb;
+      --glass: rgba(255,255,255,0.15);
+      --border: rgba(255,255,255,0.35);
+      --text: #fff;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4));
+      background-size: 300% 300%;
+      animation: gradientShift 20s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .wrap { width: min(960px, 94vw); text-align: center; position: relative; z-index: 2; }
+    .title {
+      margin: 0 0 14px;
+      font-family: "Pacifico", cursive;
+      font-size: clamp(2rem, 6.5vw, 4rem);
+      letter-spacing: 0.5px;
+      text-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .title .cake { font-size: 0.8em; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25)); }
+    .card {
+      margin: 0 auto; padding: clamp(14px, 3.5vw, 22px);
+      background: var(--glass); border: 1px solid var(--border); border-radius: 20px;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 12px 60px rgba(0,0,0,0.25);
+    }
+    .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(10px, 3vw, 18px); }
+    .unit {
+      background: rgba(255,255,255,0.18); border: 1px solid var(--border); border-radius: 16px;
+      padding: clamp(12px, 2.8vw, 18px); box-shadow: inset 0 0 24px rgba(255,255,255,0.08);
+    }
+    .value { font-size: clamp(2.2rem, 8vw, 4rem); font-weight: 800; line-height: 1; letter-spacing: 1px; text-shadow: 0 4px 18px rgba(0,0,0,0.25); }
+    .label { margin-top: 6px; font-size: clamp(0.7rem, 2.4vw, 0.95rem); opacity: 0.85; letter-spacing: 0.4px; }
+    @media (max-width: 560px) { .countdown { grid-template-columns: repeat(2, 1fr); } }
+    .balloons { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; opacity: 0.9; }
+    .balloon {
+      position: absolute; width: 80px; height: 100px; border-radius: 50% 50% 45% 45%;
+      box-shadow: inset -6px -10px 24px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.12);
+      animation: floatUp linear infinite; transform: translateY(110vh);
+    }
+    .balloon::after {
+      content: ""; position: absolute; width: 2px; height: 70px; left: 50%; top: 100%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.18); opacity: 0.6;
+    }
+    .b1 { left: 8vw;  background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--pink);   animation-duration: 18s; animation-delay: -3s; }
+    .b2 { left: 22vw; background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--yellow); animation-duration: 20s; animation-delay: -7s; }
+    .b3 { left: 38vw; background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--blue);   animation-duration: 16s; animation-delay: -11s; }
+    .b4 { left: 55vw; background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--purple); animation-duration: 22s; animation-delay: -5s; }
+    .b5 { left: 72vw; background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--green);  animation-duration: 19s; animation-delay: -9s; }
+    .b6 { left: 88vw; background: radial-gradient(circle at 30% 30%, #fff6 0, transparent 50%), var(--pink);   animation-duration: 21s; animation-delay: -13s; }
+    @keyframes floatUp { 0% { transform: translateY(110vh) translateX(0); } 50% { transform: translateY(40vh) translateX(-12px); } 100% { transform: translateY(-120px) translateX(0); } }
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 3; overflow: hidden; }
+    .confetti {
+      position: absolute; top: -10vh; width: 8px; height: 14px; opacity: 0; transform: translateY(-20vh) rotate(0);
+      animation: confettiFall var(--dur, 2.2s) linear forwards, confettiSpin var(--dur, 2.2s) linear forwards; border-radius: 2px;
+    }
+    @keyframes confettiFall { 0% { opacity: 0; transform: translateY(-20vh) translateX(0) rotate(0); } 10% { opacity: 1; } 100% { opacity: 1; transform: translateY(120vh) translateX(var(--dx, 0)) rotate(0); } }
+    @keyframes confettiSpin { 0% { transform: perspective(200px) rotateX(0) rotateY(0); } 100% { transform: perspective(200px) rotateX(720deg) rotateY(360deg); } }
+    .celebrate {
+      position: fixed; inset: 0; display: grid; place-items: center; z-index: 4; pointer-events: none; opacity: 0; transform: scale(0.98);
+      transition: opacity 400ms ease, transform 400ms ease; background: radial-gradient(800px 400px at 50% 40%, rgba(255,255,255,0.12), transparent 60%);
+    }
+    .celebrate.show { opacity: 1; transform: scale(1); }
+    .celebrate h2 { margin: 0; font-family: "Pacifico", cursive; font-size: clamp(2.2rem, 8vw, 5rem); text-shadow: 0 10px 40px rgba(0,0,0,0.35); }
+    @media (prefers-reduced-motion: reduce) { .balloon, .confetti { animation: none !important; } body { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="balloons" aria-hidden="true">
+    <div class="balloon b1"></div><div class="balloon b2"></div><div class="balloon b3"></div>
+    <div class="balloon b4"></div><div class="balloon b5"></div><div class="balloon b6"></div>
+  </div>
+
+  <div id="confetti" aria-hidden="true"></div>
+
+  <div id="celebrate" class="celebrate" aria-hidden="true">
+    <h2 id="cheer">🎉 Happy Birthday! 🎉</h2>
+  </div>
+
+  <main class="wrap">
+    <h1 class="title"><span class="cake">🎂</span><span id="titleName">Alex's Birthday</span><span class="cake">🎈</span></h1>
+    <div class="card">
+      <div class="countdown" role="group" aria-label="Countdown">
+        <div class="unit"><div id="days" class="value">00</div><div class="label">Days</div></div>
+        <div class="unit"><div id="hours" class="value">00</div><div class="label">Hours</div></div>
+        <div class="unit"><div id="minutes" class="value">00</div><div class="label">Minutes</div></div>
+        <div class="unit"><div id="seconds" class="value">00</div><div class="label">Seconds</div></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Set to 28 Nov 2025, 12:00 PM in India (IST, UTC+05:30)
+    const DEFAULT_CONFIG = {
+      name: "Lakho Di",
+      dateISO: "2025-11-28T12:00:00+05:30",
+      url: "https://youtube.com",
+      openInNewTab: false,
+      redirectDelayMs: 1500
+    };
+
+    function readConfig() {
+      const p = new URLSearchParams(location.search);
+      const cfg = { ...DEFAULT_CONFIG };
+      if (p.has("name")) cfg.name = p.get("name");
+      if (p.has("date")) cfg.dateISO = p.get("date");
+      if (p.has("url")) cfg.url = p.get("url");
+      if (p.has("newtab")) cfg.openInNewTab = ["1","true","yes","on"].includes(p.get("newtab").toLowerCase());
+      return cfg;
+    }
+    const config = readConfig();
+
+    const elDays = document.getElementById("days");
+    const elHours = document.getElementById("hours");
+    const elMinutes = document.getElementById("minutes");
+    const elSeconds = document.getElementById("seconds");
+    const elTitleName = document.getElementById("titleName");
+    const elCheer = document.getElementById("cheer");
+    const elCelebrate = document.getElementById("celebrate");
+    const confettiRoot = document.getElementById("confetti");
+
+    elTitleName.textContent = `${config.name}'s Birthday`;
+    elCheer.textContent = `🎉 Happy Birthday, ${config.name}! 🎉`;
+
+    const targetDate = new Date(config.dateISO);
+    const pad2 = n => String(n).padStart(2, "0");
+
+    function breakdown(ms) {
+      const total = Math.max(0, Math.floor(ms/1000));
+      const d = Math.floor(total / 86400);
+      const h = Math.floor((total % 86400) / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return { d, h, m, s };
+    }
+
+    function updateUI(diff) {
+      const t = breakdown(diff);
+      elDays.textContent = pad2(t.d);
+      elHours.textContent = pad2(t.h);
+      elMinutes.textContent = pad2(t.m);
+      elSeconds.textContent = pad2(t.s);
+      document.title = `${t.d}d ${pad2(t.h)}h ${pad2(t.m)}m ${pad2(t.s)}s · ${config.name}'s Birthday`;
+    }
+
+    let redirected = false;
+    const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function openLink() {
+      if (redirected) return;
+      redirected = true;
+      if (config.openInNewTab) {
+        const win = window.open(config.url, "_blank", "noopener");
+        if (!win) window.location.replace(config.url);
+      } else {
+        window.location.replace(config.url);
+      }
+    }
+
+    function launchConfetti(count = 140) {
+      if (prefersReduced) return;
+      const COLORS = ["#ff6aa7","#ffd166","#70d6ff","#c77dff","#83e377","#f4978e","#f1c0e8","#bde0fe"];
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("i");
+        piece.className = "confetti";
+        const size = 6 + Math.random()*8;
+        const left = Math.random() * 100;
+        const dx = (Math.random() * 60 - 30) + "px";
+        const dur = (1.8 + Math.random() * 1.6).toFixed(2) + "s";
+        piece.style.left = left + "vw";
+        piece.style.width = (size * 0.6) + "px";
+        piece.style.height = size + "px";
+        piece.style.background = COLORS[i % COLORS.length];
+        piece.style.setProperty("--dx", dx);
+        piece.style.setProperty("--dur", dur);
+        confettiRoot.appendChild(piece);
+        setTimeout(() => piece.remove(), 2600);
+      }
+    }
+
+    function celebrateAndGo() {
+      elCelebrate.classList.add("show");
+      launchConfetti();
+      setTimeout(openLink, config.redirectDelayMs);
+    }
+
+    function tick() {
+      const diff = +targetDate - Date.now();
+      if (diff <= 0) {
+        clearInterval(timer);
+        updateUI(0);
+        celebrateAndGo();
+        return;
+      }
+      updateUI(diff);
+    }
+
+    let timer;
+    if (isNaN(targetDate.getTime())) {
+      updateUI(0);
+    } else {
+      tick();
+      timer = setInterval(tick, 1000);
+      if (+targetDate - Date.now() <= 0) celebrateAndGo();
+    }
+  </script>
+</body>
+</html>
